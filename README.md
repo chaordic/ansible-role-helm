@@ -18,6 +18,7 @@ Example Playbook
 ```
 
   ---
+---
 - name: EKS
   hosts: 127.0.0.1
   connection: local
@@ -29,16 +30,31 @@ Example Playbook
   vars_files:
     - "vars/k8s-cluster/eks-cloud-{{ env }}.yml"
 
-  pre_tasks:
-    - name: Load Helm Charts definitions from vars/k8s-cluster-main
-      include_vars: "{{ item }}"
-      with_items:
-        - "{{ playbook_dir }}/vars/k8s-cluster/helm-charts/main.yml"
-      register: temp_charts
-      tags: always
+  vars_prompt:
+    - name: "chart_var"
+      prompt: "What Chart FILE do you want to load [vars/k8s-cluster/helm-charts/<FILE>.yml or * to ALL]?"
+      private: no
+      when: chart_var is not defined
 
-    - debug:
-       var: helm_charts
+  pre_tasks:
+    - block:
+      - name: Load Helm Charts definitions from vars/k8s-cluster/helm-charts
+        include_vars: "{{ item }}"
+        with_items:
+          - "{{ playbook_dir }}/vars/k8s-cluster/helm-charts/{{ chart_var }}.yml"
+        register: temp_charts1
+        tags: always
+
+      when: chart_var != "*"
+
+    - block:
+      - name: Load all Helm Charts definitions from vars/k8s-cluster/helm-charts
+        include_vars: "{{ item }}"
+        with_fileglob:
+          - "{{ playbook_dir }}/vars/k8s-cluster/helm-charts/*.yml"
+        register: temp_charts2
+
+      when: chart_var == "*"
 
     - debug:
         msg: "{{ item }}"
