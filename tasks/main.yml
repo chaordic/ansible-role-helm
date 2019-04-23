@@ -1,0 +1,9 @@
+---
+- include: tiller.yaml
+  tags: tiller
+
+- include: helm-charts.yaml
+  tags: charts
+  with_items: "{{ helm_charts }}"
+  loop_control:
+    loop_var: item_helm

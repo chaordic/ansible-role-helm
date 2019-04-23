@@ -1,0 +1,30 @@
+---
+
+- name: create helm pid
+  set_fact:
+    tun_pid_file: /tmp/helm_pid.pid
+
+- name: set up a tunnel to tiller
+  shell: |
+    tiller_pod="$(kubectl get pod -l app=helm,name=tiller --namespace kube-system -o name|cut -d/ -f2)"
+    nohup kubectl port-forward "$tiller_pod" 44134:44134 --namespace kube-system >/dev/null 2>&1 &
+    echo "$!" >{{ tun_pid_file|quote }}
+  args:
+    creates: "{{ tun_pid_file }}"
+  changed_when: false
+
+- debug:
+   var: item_helm
+
+# Install any helm charts defined by vars Example: ../default/main.yml
+- name: "{{ item_helm.chart.name }} - Install Helm Chart"
+  helm: "{{ item_helm }}"
+  when: item_helm is defined
+
+- name: tear down the tunnel to tiller
+  shell: |
+    kill "$(cat {{ tun_pid_file|quote }})" || true
+    rm -f {{ tun_pid_file|quote }}
+  args:
+    removes: "{{ tun_pid_file }}"
+  changed_when: false
