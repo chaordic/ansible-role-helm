@@ -91,6 +91,3 @@ helm_charts:
     name: docker-registry
     namespace: default
 ```
-
-# Attention
-> Your Helm cli version is responsible to the creation of tiller version.
