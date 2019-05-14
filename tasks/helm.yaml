@@ -1,0 +1,29 @@
+---
+
+- name: Download helm
+  unarchive:
+    src: "{{ helm_url }}"
+    dest: /tmp
+    copy: no
+  tags: download
+
+- name: Create the installation directory
+  become: yes
+  file:
+    path: "{{ helm_bin_dir }}"
+    state: directory
+
+- name: Copy helm binary
+  become: yes
+  copy:
+    src: /tmp/linux-amd64/helm
+    dest: "{{ helm_bin_dir }}"
+    mode: 0755
+    remote_src: yes
+
+- name: Create helm soft link
+  become: yes
+  file:
+    src: "{{ helm_bin_dir }}/helm"
+    dest: "/usr/bin/helm"
+    state: link

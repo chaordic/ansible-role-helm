@@ -1,4 +1,7 @@
 ---
+- include: helm.yaml
+  tags: helm
+
 - include: tiller.yaml
   tags: tiller
 
