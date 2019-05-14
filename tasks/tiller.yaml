@@ -18,7 +18,7 @@
     definition: "{{ lookup('file', 'files/tiller-rbac.yml') | from_yaml }}"
 
 - name: Set up Helm and Tiller.
-  command: helm init --service-account tiller
+  command: "{{ helm_bin_dir }}/helm init --service-account tiller"
   register: helm_init_result
   changed_when: "'already installed' not in helm_init_result.stdout"
 
