@@ -36,15 +36,15 @@
     creates: "{{ tun_pid_file }}"
   changed_when: false
 
-- name: Wait for Tiller to become responsive.
-  wait_for:
-    host: '127.0.0.1'
-    port: '44134'
-    delay: 60
-    timeout: 400
-    sleep: 30
-    state: started
-  when: "'already installed' not in helm_init_result.stdout"
+# - name: Wait for Tiller to become responsive.
+#   wait_for:
+#     host: '127.0.0.1'
+#     port: '44134'
+#     delay: 60
+#     timeout: 400
+#     sleep: 30
+#     state: started
+#   when: "'already installed' not in helm_init_result.stdout"
 
 - name: tear down the tunnel to tiller
   shell: |
